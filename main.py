@@ -13,8 +13,6 @@ pygame.display.set_caption('Выберите фигуру')
 FPS = 60
 clock = pygame.time.Clock()
 
-run = True
-
 # класс родитель фигура
 class Figure:
     # случайный цвет
@@ -24,6 +22,9 @@ class Figure:
         b = rd.randint(0, 255)
         return (r, g, b)
 
+    # случайный цвет фигуры
+    color = random_color('self')
+
     # толщина фигур
     lineTh = 10
 
@@ -32,28 +33,24 @@ class Dot(Figure):
 
     # метод рисования точки
     def drawDot(self):
-        color = Figure.random_color(self)
-        pygame.draw.circle(screen, color,(widthX / 2, heightY / 2), Figure.lineTh)
+        pygame.draw.circle(screen, Figure.color,(widthX / 2, heightY / 2), Figure.lineTh)
 
     # метод рисования отрезка
     def drawSegment(self):
         dlina = 50
-        color = Figure.random_color(self)
-        pygame.draw.line(screen, color,[widthX / 2 - dlina, heightY / 2],
+        pygame.draw.line(screen, Figure.color,[widthX / 2 - dlina, heightY / 2],
                          [widthX / 2 + dlina, heightY / 2], Figure.lineTh)
 
     def drawCircle(self):
-        color = Figure.random_color(self)
         size = 50 # размер
-        pygame.draw.circle(screen, color,(widthX / 2, heightY / 2), size, Figure.lineTh)
+        pygame.draw.circle(screen, Figure.color,(widthX / 2, heightY / 2), size, Figure.lineTh)
 
 # класс окружности
 class Circle(Dot):
     def drawEllipse(self):
-        color = Figure.random_color(self)
         Wd = 300 # ширина
         Hg = 200 # высота
-        pygame.draw.ellipse(screen, color, (widthX / 2 - Wd / 2, heightY / 2 - Hg / 2, Wd, Hg), Figure.lineTh)
+        pygame.draw.ellipse(screen, Figure.color, (widthX / 2 - Wd / 2, heightY / 2 - Hg / 2, Wd, Hg), Figure.lineTh)
 
 # класс эллипс наследует класс окружности
 class Ellipse(Circle):
@@ -63,9 +60,14 @@ class Ellipse(Circle):
 class Segment(Dot): # класс линии наследует класс точки
     # метод рисования прямоугольника
     def drawRectangle(self):
-        color = Figure.random_color(self)
         size = 100
-        pygame.draw.rect(screen, color, pygame.Rect(widthX / 2 - size / 2, heightY / 2 - size / 2, size, size), Figure.lineTh)
+        pygame.draw.rect(screen, Figure.color, pygame.Rect(widthX / 2 - size / 2, heightY / 2 - size / 2, size, size), Figure.lineTh)
+
+    def drawTriangle(self):
+        pygame.draw.polygone(screen, Figure.color, points=[(50, 100), (100, 50), (150, 100)])
+
+class Triangle(Segment):
+    pass
 
 # класс прямоугольника наследует класс отрезка
 class Rectangle(Segment):
@@ -120,24 +122,17 @@ def keys():
     # выход из программы ESC
     if keys[pygame.K_ESCAPE]:
         pygame.quit()
+        exit()
 
 while True:
     clock.tick(FPS)
     for event in pygame.event.get():
+
         if event.type == pygame.QUIT:
-            run = False
-    # обновляет дисплей
-    pygame.display.flip()
-
-    # вызов функции события клавиш
-    keys()
-
-
-
-
-
-
-
-
-
-
+            pygame.quit()
+            exit()
+        else:
+            # обновление дисплея
+            pygame.display.update()
+            # вызов функции события клавиш
+            keys()
