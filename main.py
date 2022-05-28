@@ -5,11 +5,11 @@ import random as rd
 from sys import exit
 
 # разрешение экрана
-widthX = 1000
-heightY = 800
+widthX = 800
+heightY = 600
 
 screen = pygame.display.set_mode((widthX, heightY))
-pygame.display.set_caption('Выберите фигуру... || Управление: [ESC] - назад || [1 - 6] - пердпросмотр фигуры || [ENTER] - выбор фигуры')
+pygame.display.set_caption('Выберите фигуру...')
 
 # кадры в секунду
 FPS = 60
@@ -21,8 +21,8 @@ class Figure:
     Y = heightY / 2
 
     # рандомная траектория точки
-    dx = randrange(-1, 2)
-    dy = randrange(-1, 2)
+    dx = randrange(-2, 2)
+    dy = randrange(-2, 2)
 
     # случайный цвет фигуры
     def random_color(self):
@@ -34,61 +34,106 @@ class Figure:
     color = random_color('self')
 
     # толщина фигур
-    lineTh = 8
+    lineTh = 6
+
     # размер окружности
     sizeCircle = 80
+
+    # длина отрезка
+    dlina = 50
+
+    # ширина прямоугольника
+    widthRect = 200
+    # высота прямоугольника
+    heightRect = 100
+
+    # ширина прямоугольника
+    widthEllipse = 300
+    # высота прямоугольника
+    heightEllipse = 200
+
+    # расстояние между 3 точками для треугольника
+    sizeTriangle = 100
 
     @staticmethod
     # метод движения фигур
     def newPos(self):
+        pygame.display.set_caption('Случайное управление, для ручного нажмите [↑ ↓ ← →], [ESC] - выбор фигуры')
+        if event.type != pygame.KEYDOWN:
+            if select.dx == 0 or select.dy == 0:
+                select.dx = randrange(-2, 2)
+                select.dy = randrange(-2, 2)
 
-        if select.dx == 0 or select.dy == 0:
-            select.dx = randrange(-1, 2)
-            select.dy = randrange(-1, 2)
+            # проверка на ударение в Y стену
+            if select.Y >= (heightY - sizeY) or select.Y < sizeY:
+                # смена траектории
+                select.dy *= -1
+                select.dx = randrange(-2, 2)
+                Figure.color = Figure.random_color('self')
 
-        # проверка на ударение в Y стену
-        if select.Y >= (heightY - size) or select.Y < size:
-            # смена траектории
-            select.dy *= -1
-            select.dx = randrange(-5, 5)
+            # проверка на ударение в X стену
+            if select.X >= (widthX - sizeX) or select.X < sizeX:
+                # смена траектории
+                select.dx *= -1
+                select.dy = randrange(-2, 2)
+                screen.fill((0, 0, 0))
+                Figure.color = Figure.random_color('self')
 
-        # проверка на ударение в X стену
-        if select.X >= (widthX - size) or select.X < size:
-            # смена траектории
-            select.dx *= -1
-            select.dy = randrange(-5, 5)
-            screen.fill((0, 0, 0))
+            # движение
+            select.X += select.dx
+            select.Y += select.dy
 
-        # движение
-        select.X += select.dx
-        select.Y += select.dy
+        if event.type == pygame.KEYDOWN:
+            select.dx = 0
+            select.dy = 0
+
+            if event.key == pygame.K_UP:
+                select.Y -= 5
+                print("Нажата клавиша вверх")
+            if event.key == pygame.K_DOWN:
+                select.Y += 5
+                print("Нажата клавиша вниз")
+            if event.key == pygame.K_RIGHT:
+                select.X += 5
+                print("Нажата клавиша вправо")
+            if event.key == pygame.K_LEFT:
+                select.X -= 5
+                print("Нажата клавиша влево")
+
+            # возвращение фигур в другой конец экрана
+            if select.Y >= (heightY - sizeY):
+                select.Y = sizeY + 1
+            if select.X >= widthX - sizeX:
+                select.X = sizeX + 1
+
+            if select.Y <= sizeY:
+                select.Y = heightY - sizeY
+            if select.X <= sizeX:
+                select.X = widthX - sizeX
+
         return select.X, select.Y
 
 # класс точка наследует класс фигуры
 class Dot(Figure):
     # метод рисования точки
     def drawDot(self):
-        pygame.draw.circle(screen, Figure.color,(Dot.X, Dot.Y), Figure.lineTh)
-
+        pygame.draw.circle(screen, Figure.color, (Dot.X, Dot.Y), Figure.lineTh)
 
     # метод рисования отрезка
     def drawSegment(self):
-        dlina = 50
-        pygame.draw.line(screen, Figure.color,[widthX / 2 - dlina, heightY / 2],
-                         [widthX / 2 + dlina, heightY / 2], Figure.lineTh)
+        pygame.draw.line(screen, Figure.color, [Segment.X - Figure.dlina, Segment.Y],
+                         [Segment.X + Figure.dlina, Segment.Y], Figure.lineTh)
 
     # метод рисования окружности
     def drawCircle(self):
+        pygame.draw.circle(screen, Figure.color, (Circle.X, Circle.Y), Figure.sizeCircle, Figure.lineTh)
 
-        pygame.draw.circle(screen, Figure.color,(Circle.X, Circle.Y), Figure.sizeCircle, Figure.lineTh)
-
-# класс окружности
+# класс окружности наследует класс точки
 class Circle(Dot):
-
+    # метод рисования эллипса
     def drawEllipse(self):
-        Wd = 250 # ширина
-        Hg = 150 # высота
-        pygame.draw.ellipse(screen, Figure.color, (widthX / 2 - Wd / 2, heightY / 2 - Hg / 2, Wd, Hg), Figure.lineTh)
+        pygame.draw.ellipse(screen, Figure.color, (Ellipse.X - Figure.widthEllipse / 2, Ellipse.Y - Figure.heightEllipse / 2,
+                                                   Figure.widthEllipse, Figure.heightEllipse), Figure.lineTh)
 
 # класс эллипс наследует класс окружности
 class Ellipse(Circle):
@@ -98,17 +143,14 @@ class Ellipse(Circle):
 class Segment(Dot):
     # метод рисования прямоугольника
     def drawRectangle(self):
-        # ширина
-        widthRect = 200
-        # высота
-        heightRect = 100
-        pygame.draw.rect(screen, Figure.color, pygame.Rect(widthX / 2 - widthRect / 2,
-                                                           heightY / 2 - heightRect / 2, widthRect, heightRect), Figure.lineTh)
+        pygame.draw.rect(screen, Figure.color, pygame.Rect(Rectangle.X - Figure.widthRect / 2,
+                                                           Rectangle.Y - Figure.heightRect / 2, Figure.widthRect, Figure.heightRect), Figure.lineTh)
 
+    # метод рисования треугольника
     def drawTriangle(self):
-        size = 100
-        pygame.draw.polygon(screen, Figure.color, [(widthX / 2 - size, heightY / 2 + size),
-                                                   (widthX / 2 + size, heightY / 2 + size), ((widthX / 2), heightY / 2 - size)], Figure.lineTh)
+        pygame.draw.polygon(screen, Figure.color, [(Triangle.X - Figure.sizeTriangle, Triangle.Y + Figure.sizeTriangle),
+                                                   (Triangle.X + Figure.sizeTriangle, Triangle.Y + Figure.sizeTriangle),
+                                                   ((Triangle.X), Triangle.Y - Figure.sizeTriangle)], Figure.lineTh)
 
 class Triangle(Segment):
     pass
@@ -117,92 +159,115 @@ class Triangle(Segment):
 class Rectangle(Segment):
     pass
 
-# инициализация точки
+# инициализация классов
 dot = Dot()
-# инициализация линии
 segment = Segment()
-# инициализация прямоугольника
 rectangle = Rectangle()
-# инициализация окружности
 circle = Circle()
-# инициализация эллипса
 ellipse = Ellipse()
-# инициализация треугольника
 triangle = Triangle()
+
+previewSelect = None
+messageSelect = None
 
 # обработчик событий при нажатии кнопок (предварительный просмотр и выбор)
 def previewKeysSelect():
     # работаем с переменной внутри функции
     global previewSelect
-    global size
-    global mes
-    if event.type == pygame.KEYUP:
+    global sizeX
+    global sizeY
+    global messageSelect
 
+    if event.type == pygame.KEYUP:
         # точка
         if event.key == pygame.K_1:
             print("Предпросмотр точки")
             screen.fill((0, 0, 0))
             dot.drawDot()
-            size = Figure.lineTh
-            mes = 'ТОЧКА'
-            pygame.display.set_caption(f'{mes}, для подтверждения нажмите [Enter]')
+
+            #переменные границ
+            sizeX = Figure.lineTh
+            sizeY = Figure.lineTh
+
+            messageSelect = 'ТОЧКА'
+            pygame.display.set_caption(f'{messageSelect}, для подтверждения нажмите [Enter]')
             previewSelect = Dot
 
-        # линия
+        # отрезок
         if event.key == pygame.K_2:
             print("Предпросмотр линии")
             screen.fill((0, 0, 0))
             dot.drawSegment()
-            mes = 'ОТРЕЗОК'
-            pygame.display.set_caption(f'{mes}, для подтверждения нажмите [Enter]')
+
+            sizeX = Figure.dlina
+            sizeY = Figure.lineTh / 2
+
+            messageSelect = 'ОТРЕЗОК'
+            pygame.display.set_caption(f'{messageSelect}, для подтверждения нажмите [Enter]')
             previewSelect = Segment
+
 
         # прямоугольник
         if event.key == pygame.K_3:
             print("Предпросмотр прямоугольника")
             screen.fill((0, 0, 0))
             rectangle.drawRectangle()
-            mes = 'ПРЯМОУГОЛЬНИК'
-            pygame.display.set_caption(f'{mes}, для подтверждения нажмите [Enter]')
+
+            sizeX = Figure.widthRect / 2
+            sizeY = Figure.heightRect / 2
+
+            messageSelect = 'ПРЯМОУГОЛЬНИК'
+            pygame.display.set_caption(f'{messageSelect}, для подтверждения нажмите [Enter]')
             previewSelect = Rectangle
+
 
         # окружность
         if event.key == pygame.K_4:
             print("Предпросмотр окружности")
             screen.fill((0, 0, 0))
             circle.drawCircle()
-            size = Figure.sizeCircle
-            mes = 'ОКРУЖНОСТЬ'
-            pygame.display.set_caption(f'{mes}, для подтверждения нажмите [Enter]')
+
+            sizeX = Figure.sizeCircle
+            sizeY = Figure.sizeCircle
+
+            messageSelect = 'ОКРУЖНОСТЬ'
+            pygame.display.set_caption(f'{messageSelect}, для подтверждения нажмите [Enter]')
             previewSelect = Circle
+
 
         # эллипс
         if event.key == pygame.K_5:
             print("Предпросмотр эллипса")
             screen.fill((0, 0, 0))
             ellipse.drawEllipse()
-            mes = 'ЭЛЛИПС'
-            pygame.display.set_caption(f'{mes}, для подтверждения нажмите [Enter]')
+
+            sizeX = Figure.widthEllipse / 2
+            sizeY = Figure.heightEllipse / 2
+
+            messageSelect = 'ЭЛЛИПС'
+            pygame.display.set_caption(f'{messageSelect}, для подтверждения нажмите [Enter]')
             previewSelect = Ellipse
+
 
         # треугольник
         if event.key == pygame.K_6:
             print("Предпросмотр треугольника")
             screen.fill((0, 0, 0))
             triangle.drawTriangle()
-            mes = 'ТРЕУГОЛЬНИК'
-            pygame.display.set_caption(f'{mes}, для подтверждения нажмите [Enter]')
+
+            sizeX = Figure.sizeTriangle
+            sizeY = Figure.sizeTriangle
+
+            messageSelect = 'ТРЕУГОЛЬНИК'
+            pygame.display.set_caption(f'{messageSelect}, для подтверждения нажмите [Enter]')
             previewSelect = Triangle
 
-        # previewSelect.X = widthX / 2
-        # previewSelect.Y = heightY / 2
 
         # подтверждение выбора ENTER
         if event.key == pygame.K_RETURN and previewSelect != None:
             select = previewSelect
-            previewSelect = None
-            print(f'Выбранная фигура: {mes}')
-            pygame.display.set_caption(f'Выбранная фигура: {mes} || [ESC] - назад')
+            print(f'Выбранная фигура: {messageSelect}')
+            pygame.display.set_caption(f'Выбранная фигура: {messageSelect}, [ESC] - выбор фигуры')
             return select
 
 global select
@@ -217,9 +282,10 @@ while True:
             pygame.quit()
             exit()
 
-        # если выбор не сделан показываем превью фигур с возможностью выбора
-        if select == None:
-            select = previewKeysSelect()
+    print(select)
+    # если выбор не сделан показываем превью фигур с возможностью выбора
+    if select == None:
+        select = previewKeysSelect()
 
     # если выбрана точка
     if select == Dot:
@@ -227,21 +293,49 @@ while True:
         screen.fill((0, 0, 0))
         dot.drawDot()
 
+    # если выбран отрезок
+    if select == Segment:
+        Figure.newPos('self')
+        screen.fill((0, 0, 0))
+        segment.drawSegment()
+
+    # если выбран прямоугольник
+    if select == Rectangle:
+        Figure.newPos('self')
+        screen.fill((0, 0, 0))
+        segment.drawRectangle()
+
+    # если выбрана окружность
     if select == Circle:
         Figure.newPos('self')
         screen.fill((0, 0, 0))
-        circle.drawCircle()
+        segment.drawCircle()
+
+    # если выбран эллипс
+    if select == Ellipse:
+        Figure.newPos('self')
+        screen.fill((0, 0, 0))
+        ellipse.drawEllipse()
+
+    # если выбран треугольник
+    if select == Triangle:
+        Figure.newPos('self')
+        screen.fill((0, 0, 0))
+        triangle.drawTriangle()
 
     # срабатывание клавиши ESC только если сделан выбор
-    if event.type == pygame.KEYUP and select != None:
+    if event.type == pygame.KEYUP and select != None and event.key == pygame.K_ESCAPE:
+
         if event.key == pygame.K_ESCAPE:
             screen.fill((0, 0, 0))
             select.X = widthX / 2
             select.Y = heightY / 2
             # очищаем переменную выбранной фигуры
+            previewSelect = None
             select = None
+            messageSelect = None
             print(f"Выбранная фигура: {select}")
-            pygame.display.set_caption('Выберите фигуру... || Управление: [ESC] - назад || [1 - 6] - пердпросмотр фигуры || [ENTER] - выбор фигуры')
+            pygame.display.set_caption('Выберите фигуру...')
 
     # обновление дисплея
     pygame.display.update()
