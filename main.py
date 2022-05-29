@@ -19,8 +19,7 @@ clock = pygame.time.Clock()
 class Figure:
     X = widthX / 2
     Y = heightY / 2
-
-    # рандомная траектория точки
+    # случайная траектория точки
     dx = randrange(-2, 2)
     dy = randrange(-2, 2)
 
@@ -52,11 +51,11 @@ class Figure:
     # высота прямоугольника
     heightEllipse = 200
 
-    # расстояние между 3 точками для треугольника
+    # расстояние между точками для треугольника
     sizeTriangle = 100
 
-    @staticmethod
     # метод движения фигур
+    @staticmethod
     def newPos(self):
         pygame.display.set_caption('Случайное управление, для ручного нажмите [↑ ↓ ← →], [ESC] - выбор фигуры')
         if event.type != pygame.KEYDOWN:
@@ -83,6 +82,7 @@ class Figure:
             select.X += select.dx
             select.Y += select.dy
 
+        # действие при удержании клавиш
         if event.type == pygame.KEYDOWN:
             select.dx = 0
             select.dy = 0
@@ -152,6 +152,7 @@ class Segment(Dot):
                                                    (Triangle.X + Figure.sizeTriangle, Triangle.Y + Figure.sizeTriangle),
                                                    ((Triangle.X), Triangle.Y - Figure.sizeTriangle)], Figure.lineTh)
 
+# класс треугольника наследует класс отрезка
 class Triangle(Segment):
     pass
 
@@ -172,7 +173,6 @@ messageSelect = None
 
 # обработчик событий при нажатии кнопок (предварительный просмотр и выбор)
 def previewKeysSelect():
-    # работаем с переменной внутри функции
     global previewSelect
     global sizeX
     global sizeY
@@ -184,11 +184,8 @@ def previewKeysSelect():
             print("Предпросмотр точки")
             screen.fill((0, 0, 0))
             dot.drawDot()
-
-            #переменные границ
             sizeX = Figure.lineTh
             sizeY = Figure.lineTh
-
             messageSelect = 'ТОЧКА'
             pygame.display.set_caption(f'{messageSelect}, для подтверждения нажмите [Enter]')
             previewSelect = Dot
@@ -198,28 +195,22 @@ def previewKeysSelect():
             print("Предпросмотр линии")
             screen.fill((0, 0, 0))
             dot.drawSegment()
-
             sizeX = Figure.dlina
             sizeY = Figure.lineTh / 2
-
             messageSelect = 'ОТРЕЗОК'
             pygame.display.set_caption(f'{messageSelect}, для подтверждения нажмите [Enter]')
             previewSelect = Segment
-
 
         # прямоугольник
         if event.key == pygame.K_3:
             print("Предпросмотр прямоугольника")
             screen.fill((0, 0, 0))
             rectangle.drawRectangle()
-
             sizeX = Figure.widthRect / 2
             sizeY = Figure.heightRect / 2
-
             messageSelect = 'ПРЯМОУГОЛЬНИК'
             pygame.display.set_caption(f'{messageSelect}, для подтверждения нажмите [Enter]')
             previewSelect = Rectangle
-
 
         # окружность
         if event.key == pygame.K_4:
@@ -234,7 +225,6 @@ def previewKeysSelect():
             pygame.display.set_caption(f'{messageSelect}, для подтверждения нажмите [Enter]')
             previewSelect = Circle
 
-
         # эллипс
         if event.key == pygame.K_5:
             print("Предпросмотр эллипса")
@@ -248,20 +238,16 @@ def previewKeysSelect():
             pygame.display.set_caption(f'{messageSelect}, для подтверждения нажмите [Enter]')
             previewSelect = Ellipse
 
-
         # треугольник
         if event.key == pygame.K_6:
             print("Предпросмотр треугольника")
             screen.fill((0, 0, 0))
             triangle.drawTriangle()
-
             sizeX = Figure.sizeTriangle
             sizeY = Figure.sizeTriangle
-
             messageSelect = 'ТРЕУГОЛЬНИК'
             pygame.display.set_caption(f'{messageSelect}, для подтверждения нажмите [Enter]')
             previewSelect = Triangle
-
 
         # подтверждение выбора ENTER
         if event.key == pygame.K_RETURN and previewSelect != None:
@@ -303,13 +289,13 @@ while True:
     if select == Rectangle:
         Figure.newPos('self')
         screen.fill((0, 0, 0))
-        segment.drawRectangle()
+        rectangle.drawRectangle()
 
     # если выбрана окружность
     if select == Circle:
         Figure.newPos('self')
         screen.fill((0, 0, 0))
-        segment.drawCircle()
+        circle.drawCircle()
 
     # если выбран эллипс
     if select == Ellipse:
@@ -323,19 +309,17 @@ while True:
         screen.fill((0, 0, 0))
         triangle.drawTriangle()
 
-    # срабатывание клавиши ESC только если сделан выбор
+    # срабатывание клавиши ESC
     if event.type == pygame.KEYUP and select != None and event.key == pygame.K_ESCAPE:
-
         if event.key == pygame.K_ESCAPE:
             screen.fill((0, 0, 0))
             select.X = widthX / 2
             select.Y = heightY / 2
-            # очищаем переменную выбранной фигуры
+            # очищаем переменные выбранной фигуры, превью и сообщения
             previewSelect = None
             select = None
             messageSelect = None
             print(f"Выбранная фигура: {select}")
             pygame.display.set_caption('Выберите фигуру...')
-
     # обновление дисплея
     pygame.display.update()
